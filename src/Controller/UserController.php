@@ -2,12 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Skill;
 use App\Entity\User;
 use Doctrine\DBAL\Exception\InvalidArgumentException;
-use Negotiation\Exception\InvalidArgument;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\Annotations as Fos;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -181,5 +180,99 @@ class UserController extends Controller
         return $response;
     }
 
-    
+    /**
+     * @Fos\Get("/user/{id}/skill")
+     */
+    public function getUserSkillsAction(Request $request, int $id) {
+        $orm = $this->getDoctrine()->getManager();
+        $response = new JsonResponse();
+        $response->setStatusCode(200);
+        $response->setContent("successful operation");
+        /** @var User $user */
+        $user = $orm->getRepository('App:User')->findOneBy(['id' => $id]);
+        if ($user) {
+            $skills = $orm->getRepository('App:Skill')->findBy(['user' => $user]);
+            $response->setContent($skills);
+        }
+        else {
+            $response->setStatusCode(404);
+            $response->setContent("User not found");
+        }
+
+        return $response;
+    }
+
+    /**
+     * @Fos\Get("/user/skill/{type}")
+     */
+    public function getUsersBySkillTypeAction(Request $request, $type) {
+        $response = new JsonResponse();
+        if (gettype($type) != "string") {
+            $response->setStatusCode(400);
+            $response->setContent("Invalid parameters supplied");
+        }
+        $orm = $this->getDoctrine()->getManager();
+        $response->setStatusCode(200);
+        $skillByTypes = $orm->getRepository('App:Skill')->findBy(['type' => $type]);
+        $skillByName = $orm->getRepository('App:Skill')->findBy(['name' => $type]);
+        $results = [];
+        /** @var Skill $item */
+        foreach ($skillByTypes as $item) {
+            if (!in_array($item->getUser(), $results)) {
+                $results[] = $item->getUser();
+            }
+        }
+        foreach ($skillByName as $item) {
+            if (!in_array($item->getUser(), $results)) {
+                $results[] = $item->getUser();
+            }
+        }
+        if (count($results) == 0) {
+            $response->setStatusCode(404);
+            $response->setContent("User not found");
+        }
+        else {
+            $response->setContent($results);
+        }
+        return $response;
+    }
+
+    /**
+     * @Fos\Get("/user/skill/{type}/{note}")
+     */
+    public function getUsersBySkillTypeNdNoteAction(Request $request, $type, $note) {
+        $response = new JsonResponse();
+        if (gettype($type) != "string") {
+            $response->setStatusCode(400);
+            $response->setContent("Invalid parameters supplied");
+        }
+        $orm = $this->getDoctrine()->getManager();
+        $response->setStatusCode(200);
+        $skillByTypes = $orm->getRepository('App:Skill')->findBy(['type' => $type]);
+        $skillByName = $orm->getRepository('App:Skill')->findBy(['name' => $type]);
+        $results = [];
+        /** @var Skill $item */
+        foreach ($skillByTypes as $item) {
+            if ($item->getNote() >= $note) {
+                if (!in_array($item->getUser(), $results)) {
+                    $results[] = $item->getUser();
+                }
+            }
+        }
+        foreach ($skillByName as $item) {
+            if ($item->getNote() >= $note) {
+                if (!in_array($item->getUser(), $results)) {
+                    $results[] = $item->getUser();
+                }
+            }
+        }
+        if (count($results) == 0) {
+            $response->setStatusCode(404);
+            $response->setContent("User not found");
+        }
+        else {
+            $response->setContent($results);
+        }
+        return $response;
+    }
 }

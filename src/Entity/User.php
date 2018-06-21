@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
-class User
+class User implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -112,5 +112,17 @@ class User
         $this->salaryClaims = $salaryClaims;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'firstName' => $this->firstName,
+            'lastName' => $this->lastName,
+            'description' => $this->description,
+            'salaryClaims' => $this->salaryClaims
+        ];
     }
 }

@@ -8,7 +8,7 @@ use App\Entity\Project\User;
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProjectRepository")
  */
-class Project
+class Project implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -107,5 +107,17 @@ class Project
         $this->links = $links;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "userId" => $this->user->getId(),
+            "name" => $this->name,
+            "descriptive" => $this->descriptive,
+            "languages" =>  $this->languages,
+            "links" => $this->links
+        ];
     }
 }

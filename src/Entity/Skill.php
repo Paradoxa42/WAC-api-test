@@ -3,12 +3,12 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\Project\User;
+use App\Entity\User;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\SkillRepository")
  */
-class Skill
+class Skill implements \JsonSerializable
 {
     /**
      * @ORM\Id()
@@ -87,8 +87,21 @@ class Skill
 
     public function setNote(int $note): self
     {
+        if ($note < 0 || $note > 5)
+            throw new InvalidArgumentException();
         $this->note = $note;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "userId" => $this->user->getId(),
+            "type" => $this->type,
+            "note" => $this->note
+        ];
     }
 }

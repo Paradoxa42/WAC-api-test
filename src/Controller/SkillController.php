@@ -2,19 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Skill;
+use App\Entity\User;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\Annotations as Fos;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SkillController extends Controller
 {
-    /**
-     * @Route("/skill", name="skill")
-     */
-    public function index()
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/SkillController.php',
-        ]);
-    }
+
 }

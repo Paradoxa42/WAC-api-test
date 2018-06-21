@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Skill;
 use App\Entity\User;
-use Doctrine\DBAL\Exception\InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -13,16 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class UserController extends Controller
 {
-    /**
-     * @Route("/user", name="user")
-     */
-    public function index()
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/UserController.php',
-        ]);
-    }
 
     /**
      * @Fos\Get("/user")
@@ -34,11 +23,11 @@ class UserController extends Controller
         $response = new JsonResponse();
         if (count($results) != 0) {
             $response->setStatusCode(200);
-            $response->setContent($results);
+            $response->setContent(json_encode($results));
         }
         else {
             $response->setStatusCode(404);
-            $response->setContent("Users not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
         return $response;
     }
@@ -52,10 +41,10 @@ class UserController extends Controller
         $user_rep = $orm->getRepository('App:User');
         $response = new JsonResponse();
         $response->setStatusCode(200);
-        $response->setContent("successful operation");
+        $response->setContent(json_encode(["message" => "successful operation"]));
         if ($user_rep->findOneBy(['email' => $request->get('email')])) {
             $response->setStatusCode(401);
-            $response->setContent("User already exist");
+            $response->setContent(json_encode(["message" => "User already exist"]));
             return $response;
         }
 
@@ -82,7 +71,7 @@ class UserController extends Controller
         }
         catch (InvalidArgumentException $ex) {
             $response->setStatusCode(400);
-            $response->setContent("Invalid data");
+            $response->setContent(json_encode(["message" => "Invalid data"]));
         }
 
         return $response;
@@ -106,7 +95,7 @@ class UserController extends Controller
         }
         else {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
         return $response;
     }
@@ -120,12 +109,12 @@ class UserController extends Controller
         $user_rep = $orm->getRepository('App:User');
         $response = new JsonResponse();
         $response->setStatusCode(200);
-        $response->setContent("successful operation");
+        $response->setContent(json_encode(["message" => "successful operation"]));
         /** @var User $user */
         $user = $orm->getRepository("App:User")->findOneBy(['id' => $id]);
         if (!$user) {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
             return $response;
         }
         try {
@@ -154,7 +143,7 @@ class UserController extends Controller
         }
         catch (InvalidArgumentException $ex) {
             $response->setStatusCode(400);
-            $response->setContent("Invalid data");
+            $response->setContent(json_encode(["message" => "Invalid data"]));
         }
         return $response;
     }
@@ -165,7 +154,7 @@ class UserController extends Controller
     public function DeleteUserAction(Request $request, $id) {
         $response = new JsonResponse();
         $response->setStatusCode(200);
-        $response->setContent("User deleted");
+        $response->setContent(json_encode(["message" => "User deleted"]));
         $orm = $this->getDoctrine()->getManager();
         /** @var User $user */
         $user = $orm->getRepository('App:User')->findOneBy(['id' => $id]);
@@ -175,7 +164,7 @@ class UserController extends Controller
         }
         else {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
         return $response;
     }
@@ -187,16 +176,15 @@ class UserController extends Controller
         $orm = $this->getDoctrine()->getManager();
         $response = new JsonResponse();
         $response->setStatusCode(200);
-        $response->setContent("successful operation");
         /** @var User $user */
         $user = $orm->getRepository('App:User')->findOneBy(['id' => $id]);
         if ($user) {
             $skills = $orm->getRepository('App:Skill')->findBy(['user' => $user]);
-            $response->setContent($skills);
+            $response->setContent(json_encode($skills));
         }
         else {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
 
         return $response;
@@ -209,7 +197,7 @@ class UserController extends Controller
         $response = new JsonResponse();
         if (gettype($type) != "string") {
             $response->setStatusCode(400);
-            $response->setContent("Invalid parameters supplied");
+            $response->setContent(json_encode(["message" => "Invalid parameters supplied"]));
         }
         $orm = $this->getDoctrine()->getManager();
         $response->setStatusCode(200);
@@ -229,10 +217,10 @@ class UserController extends Controller
         }
         if (count($results) == 0) {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
         else {
-            $response->setContent($results);
+            $response->setContent(json_encode($results));
         }
         return $response;
     }
@@ -244,7 +232,7 @@ class UserController extends Controller
         $response = new JsonResponse();
         if (gettype($type) != "string") {
             $response->setStatusCode(400);
-            $response->setContent("Invalid parameters supplied");
+            $response->setContent(json_encode(["message" => "Invalid parameters supplied"]));
         }
         $orm = $this->getDoctrine()->getManager();
         $response->setStatusCode(200);
@@ -268,10 +256,10 @@ class UserController extends Controller
         }
         if (count($results) == 0) {
             $response->setStatusCode(404);
-            $response->setContent("User not found");
+            $response->setContent(json_encode(["message" => "Users not found"]));
         }
         else {
-            $response->setContent($results);
+            $response->setContent(json_encode($results));
         }
         return $response;
     }

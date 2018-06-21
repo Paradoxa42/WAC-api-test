@@ -11,7 +11,7 @@ class User
 {
     /**
      * @ORM\Id()
-     * @ORM\GeneratedValue()
+     * ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -45,6 +45,14 @@ class User
     {
         return $this->id;
     }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
 
     public function getEmail(): ?string
     {

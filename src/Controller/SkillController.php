@@ -12,5 +12,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class SkillController extends Controller
 {
+    /**
+     * @Fos\Get("skill/{id}")
+     */
+    public function getSkillsAction(Request $request, $id)
+    {
+        $orm = $this->getDoctrine()->getManager();
 
+    }
 }

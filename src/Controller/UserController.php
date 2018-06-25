@@ -163,6 +163,14 @@ class UserController extends Controller
         /** @var User $user */
         $user = $orm->getRepository('App:User')->findOneBy(['id' => $id]);
         if ($user) {
+            $projects = $orm->getRepository("App:Project")->findBy(['user' => $user]);
+            foreach ($projects as $item) {
+                $orm->remove($item);
+            }
+            $skills = $orm->getRepository("App:Skill")->findBy(['user' => $user]);
+            foreach ($skills as $item) {
+                $orm->remove($item);
+            }
             $orm->remove($user);
             $orm->flush();
         }

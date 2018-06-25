@@ -115,42 +115,34 @@ class ProjectController extends Controller
                 return $response;
             }
 
-            if ($payload->id) {
-                if (gettype($payload->id) == "integer" && $payload->id != $project->getId()) {
+            if (property_exists($payload, "id")) {
                     if ($project_rep->find($payload->id)) {
                         throw new \Exception("Project ID already exist");
                     }
                     $project->setId($payload->id);
-                }
             }
 
-            if ($payload->userId) {
-                if (gettype($payload->userId) == "integer" && $payload->userId != $project->getUser()->getId()) {
+            if (property_exists($payload, "userId")) {
                     $user = $user_rep->find($payload->userId);
                     if (!$user) {
                         throw new \Exception("User not found");
                     }
                     $project->setUser($user);
-                }
             }
 
-            if ($payload->name) {
-                if (gettype($payload->name) == "string") {
+            if (property_exists($payload, "name")) {
                     $project->setName($payload->name);
-                }
             }
 
-            if ($payload->descriptive) {
-                if (gettype($payload->descriptive) == "string") {
+            if (property_exists($payload, "descriptive")) {
                     $project->setDescriptive($payload->descriptive);
-                }
             }
 
-            if ($payload->languages) {
+            if (property_exists($payload, "languages")) {
                 $project->setLanguages(json_decode(json_encode($payload->languages), true));
             }
 
-            if ($payload->links) {
+            if (property_exists($payload, "links")) {
                 $project->setLinks(json_decode(json_encode($payload->links), true));
             }
 

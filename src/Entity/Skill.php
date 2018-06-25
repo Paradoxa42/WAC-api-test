@@ -12,6 +12,7 @@ class Skill implements \JsonSerializable
 {
     /**
      * @ORM\Id()
+     * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -22,8 +23,7 @@ class Skill implements \JsonSerializable
     private $name;
 
     /**
-     * One Product has One Shipment.
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      */    
     private $user;

@@ -17,8 +17,7 @@ class Project implements \JsonSerializable
     private $id;
 
     /**
-     * One Product has One Shipment.
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="userId", referencedColumnName="id")
      */    
     private $user;

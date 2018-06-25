@@ -47,14 +47,13 @@ class SkillController extends Controller
         $payload = json_decode($request->getContent());
 
         try {
-            if (gettype($payload->id) == "integer"
-                && gettype($payload->userId) == "integer"
+            if (
+                gettype($payload->userId) == "integer"
                 && gettype($payload->name) == "string"
                 && gettype($payload->type) == "string"
                 && gettype($payload->note) == "integer"
             ) {
                 $new_skill = new skill();
-                $new_skill->setId($payload->id);
                 $new_skill->setName($payload->name);
                 $new_skill->setType($payload->type);
                 $new_skill->setNote($payload->note);
@@ -83,7 +82,7 @@ class SkillController extends Controller
     {
         $orm = $this->getDoctrine()->getManager();
         $user_rep = $orm->getRepository('App:User');
-        $skill_rep = $orm->getRepository("App:skill");
+        $skill_rep = $orm->getRepository("App:Skill");
         $response = new JsonResponse();
         $response->setStatusCode(200);
         $response->setContent(json_encode(["message" => "successful operation"]));
@@ -96,35 +95,27 @@ class SkillController extends Controller
                 return $response;
             }
 
-            if ($payload->id) {
-                if (gettype($payload->id) == "integer" && $payload->id != $skill->getId()) {
+            if (property_exists($payload, "id")) {
                     if ($skill_rep->find($payload->id)) {
                         throw new \Exception("skill ID already exist");
                     }
                     $skill->setId($payload->id);
-                }
             }
 
-            if ($payload->userId) {
-                if (gettype($payload->userId) == "integer" && $payload->userId != $skill->getUser()->getId()) {
+            if (property_exists($payload, "userId")) {
                     $user = $user_rep->find($payload->userId);
                     if (!$user) {
                         throw new \Exception("User not found");
                     }
                     $skill->setUser($user);
-                }
             }
 
-            if ($payload->name) {
-                if (gettype($payload->name) == "string") {
+            if (property_exists($payload, "name")) {
                     $skill->setName($payload->name);
-                }
             }
 
-            if ($payload->note) {
-                if (gettype($payload->note) == "integer") {
+            if (property_exists($payload, "note")) {
                     $skill->setNote($payload->note);
-                }
             }
 
             $orm->persist($skill);
@@ -146,7 +137,7 @@ class SkillController extends Controller
         $response->setContent(json_encode(["message" => "skill deleted"]));
         $orm = $this->getDoctrine()->getManager();
         /** @var skill $skill */
-        $skill = $orm->getRepository('App:skill')->findOneBy(['id' => $id]);
+        $skill = $orm->getRepository('App:Skill')->findOneBy(['id' => $id]);
         if ($skill) {
             $orm->remove($skill);
             $orm->flush();

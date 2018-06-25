@@ -15,6 +15,7 @@ class User implements \JsonSerializable
      */
     private $id;
 
+
     /**
      * @ORM\Column(type="string", length=255)
      */
@@ -39,6 +40,7 @@ class User implements \JsonSerializable
      * @ORM\Column(type="integer")
      */
     private $salaryClaims;
+
 
     public function getId()
     {
@@ -124,4 +126,5 @@ class User implements \JsonSerializable
             'salaryClaims' => $this->salaryClaims
         ];
     }
+
 }

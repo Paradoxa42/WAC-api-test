@@ -45,40 +45,35 @@ class UserController extends Controller
         $response->setStatusCode(200);
         $response->setContent(json_encode(["message" => "successful operation"]));
 
+        $payload = json_decode($request->getContent());
+
         /** @var User $new_user */
         try {
-            if (gettype($request->get("id")) == "integer"
-                && gettype($request->get("salaryClaims")) == "integer"
-                && gettype($request->get("description")) == "string"
-                && gettype($request->get("email")) == "string"
-                && filter_var($request->get("email"), FILTER_VALIDATE_EMAIL)
-                && gettype($request->get("firstName")) == "string"
-                && gettype($request->get("lastName")) == "string"
+            if (filter_var($payload->email, FILTER_VALIDATE_EMAIL)
             ) {
-                if ($user_rep->findOneBy(['email' => $request->get('email')])) {
+                if ($user_rep->findOneBy(['email' => $payload->email])) {
                     $response->setStatusCode(401);
                     $response->setContent(json_encode(["message" => "User already exist"]));
-
                     return $response;
                 }
                 $new_user = new User();
-                $new_user->setId($request->get("id"));
-                $new_user->setDescription($request->get("description"));
-                $new_user->setEmail($request->get("email"));
-                $new_user->setFirstName($request->get("firstName"));
-                $new_user->setLastName($request->get("lastName"));
-                $new_user->setSalaryClaims($request->get("salaryClaims"));
+                $new_user->setId($payload->id);
+                $new_user->setDescription($payload->description);
+                $new_user->setEmail($payload->email);
+                $new_user->setFirstName($payload->firstName);
+                $new_user->setLastName($payload->lastName);
+                $new_user->setSalaryClaims($payload->salaryClaims);
                 $orm->persist($new_user);
                 $orm->flush();
             }
             else {
                 $response->setStatusCode(400);
-                $response->setContent(json_encode(["message" => "Invalid data"]));
+                $response->setContent(json_encode(["message" => "Invalid data - email not formatted"]));
             }
         }
         catch (\Throwable $ex) {
             $response->setStatusCode(400);
-            $response->setContent(json_encode(["message" => "Invalid data"]));
+            $response->setContent(json_encode(["message" => "Invalid data - ".$ex->getMessage()]));
         }
 
         return $response;
@@ -113,6 +108,9 @@ class UserController extends Controller
         $response = new JsonResponse();
         $response->setStatusCode(200);
         $response->setContent(json_encode(["message" => "successful operation"]));
+
+        $payload = json_decode($request->getContent());
+
         /** @var User $user */
         $user = $orm->getRepository("App:User")->findOneBy(['id' => $id]);
         if (!$user) {
@@ -121,35 +119,35 @@ class UserController extends Controller
             return $response;
         }
         try {
-            if ($request->get("id")) {
-                $user->setId($request->get("id"));
+            if (property_exists($payload, "id")) {
+                $user->setId($payload->id);
             }
-            if ($request->get("description")) {
-                $user->setDescription($request->get("description"));
+            if (property_exists($payload, "description")) {
+                $user->setDescription($payload->description);
             }
-            if ($request->get("email") && filter_var($request->get("email"), FILTER_VALIDATE_EMAIL)) {
-                if ($user_rep->findOneBy(['email' => $request->get("email")]))
-                    throw new \Exception();
-                $user->setEmail($request->get("email"));
+            if (property_exists($payload, "email")) {
+                if ($user_rep->findOneBy(['email' => $payload->email]) && filter_var($payload->email, FILTER_VALIDATE_EMAIL))
+                    throw new \Exception("Email Already exist");
+                $user->setEmail($payload->email);
             }
             else {
-                throw new \Exception();
+                throw new \Exception("Email not formatted");
             }
-            if ($request->get("firstName")) {
-                $user->setFirstName($request->get("firstName"));
+            if (property_exists($payload, "firstName")) {
+                $user->setFirstName($payload->firstName);
             }
-            if ($request->get("lastName")) {
-                $user->setLastName($request->get("lastName"));
+            if (property_exists($payload, "lastName")) {
+                $user->setLastName($payload->lastName);
             }
-            if ($request->get("salaryClaims")) {
-                $user->setSalaryClaims($request->get("salaryClaims"));
+            if (property_exists($payload, "salaryClaims")) {
+                $user->setSalaryClaims($payload->salaryClaims);
             }
             $orm->persist($user);
             $orm->flush();
         }
         catch (\Throwable $ex) {
             $response->setStatusCode(400);
-            $response->setContent(json_encode(["message" => "Invalid data supplied"]));
+            $response->setContent(json_encode(["message" => "Invalid data supplied ".$ex->getMessage()]));
         }
         return $response;
     }

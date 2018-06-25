@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Skill;
 use App\Entity\User;
+use Symfony\Component\Debug\Exception\FatalErrorException;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -42,34 +44,39 @@ class UserController extends Controller
         $response = new JsonResponse();
         $response->setStatusCode(200);
         $response->setContent(json_encode(["message" => "successful operation"]));
-        if ($user_rep->findOneBy(['email' => $request->get('email')])) {
-            $response->setStatusCode(401);
-            $response->setContent(json_encode(["message" => "User already exist"]));
-            return $response;
-        }
-
-/*        if (gettype($request->get("id")) == "integer"
-            && gettype($request->get("salaryClaims")) == "integer"
-            && gettype($request->get("description")) == "string"
-            && gettype($request->get("email")) == "string"
-            && gettype($request->get("firstName")) == "string"
-            && gettype($request->get("lastName")) == "string"
-        )*/
-
 
         /** @var User $new_user */
-        $new_user = new User();
         try {
-            $new_user->setId($request->get("id"));
-            $new_user->setDescription($request->get("description"));
-            $new_user->setEmail($request->get("email"));
-            $new_user->setFirstName($request->get("firstName"));
-            $new_user->setLastName($request->get("lastName"));
-            $new_user->setSalaryClaims($request->get("salaryClaims"));
-            $orm->persist($new_user);
-            $orm->flush();
+            if (gettype($request->get("id")) == "integer"
+                && gettype($request->get("salaryClaims")) == "integer"
+                && gettype($request->get("description")) == "string"
+                && gettype($request->get("email")) == "string"
+                && filter_var($request->get("email"), FILTER_VALIDATE_EMAIL)
+                && gettype($request->get("firstName")) == "string"
+                && gettype($request->get("lastName")) == "string"
+            ) {
+                if ($user_rep->findOneBy(['email' => $request->get('email')])) {
+                    $response->setStatusCode(401);
+                    $response->setContent(json_encode(["message" => "User already exist"]));
+
+                    return $response;
+                }
+                $new_user = new User();
+                $new_user->setId($request->get("id"));
+                $new_user->setDescription($request->get("description"));
+                $new_user->setEmail($request->get("email"));
+                $new_user->setFirstName($request->get("firstName"));
+                $new_user->setLastName($request->get("lastName"));
+                $new_user->setSalaryClaims($request->get("salaryClaims"));
+                $orm->persist($new_user);
+                $orm->flush();
+            }
+            else {
+                $response->setStatusCode(400);
+                $response->setContent(json_encode(["message" => "Invalid data"]));
+            }
         }
-        catch (InvalidArgumentException $ex) {
+        catch (\Throwable $ex) {
             $response->setStatusCode(400);
             $response->setContent(json_encode(["message" => "Invalid data"]));
         }
@@ -83,15 +90,11 @@ class UserController extends Controller
     public function getUserAction(Request $request, $id)
     {
         $response = new JsonResponse();
-        if (gettype($id) != "integer") {
-            $response->setStatusCode(500);
-            return $response;
-        }
         $orm = $this->getDoctrine()->getManager();
         $results = $orm->getRepository("App:User")->findOneBy(['id' => $id]);
         if ($results) {
             $response->setStatusCode(200);
-            $response->setContent($results);
+            $response->setContent(json_encode($results));
         }
         else {
             $response->setStatusCode(404);
@@ -124,10 +127,13 @@ class UserController extends Controller
             if ($request->get("description")) {
                 $user->setDescription($request->get("description"));
             }
-            if ($request->get("email")) {
+            if ($request->get("email") && filter_var($request->get("email"), FILTER_VALIDATE_EMAIL)) {
                 if ($user_rep->findOneBy(['email' => $request->get("email")]))
-                    throw new InvalideArgumentException();
+                    throw new \Exception();
                 $user->setEmail($request->get("email"));
+            }
+            else {
+                throw new \Exception();
             }
             if ($request->get("firstName")) {
                 $user->setFirstName($request->get("firstName"));
@@ -141,9 +147,9 @@ class UserController extends Controller
             $orm->persist($user);
             $orm->flush();
         }
-        catch (InvalidArgumentException $ex) {
+        catch (\Throwable $ex) {
             $response->setStatusCode(400);
-            $response->setContent(json_encode(["message" => "Invalid data"]));
+            $response->setContent(json_encode(["message" => "Invalid data supplied"]));
         }
         return $response;
     }

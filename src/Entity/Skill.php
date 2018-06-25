@@ -12,7 +12,6 @@ class Skill implements \JsonSerializable
 {
     /**
      * @ORM\Id()
-     * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -42,6 +41,13 @@ class Skill implements \JsonSerializable
     public function getId()
     {
         return $this->id;
+    }
+
+    public function setId(int $id) :self
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function getName(): ?string
@@ -97,7 +103,6 @@ class Skill implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            "id" => $this->id,
             "name" => $this->name,
             "userId" => $this->user->getId(),
             "type" => $this->type,

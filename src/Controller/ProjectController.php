@@ -87,6 +87,9 @@ class ProjectController extends Controller
                 $orm->persist($new_project);
                 $orm->flush();
             }
+            else {
+                throw new \Exception("Invalide data type");
+            }
         }
         catch (\Throwable $ex) {
             $response->setStatusCode(405);

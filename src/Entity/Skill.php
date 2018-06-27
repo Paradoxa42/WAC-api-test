@@ -94,7 +94,7 @@ class Skill implements \JsonSerializable
     public function setNote(int $note): self
     {
         if ($note < 0 || $note > 5)
-            throw new InvalidArgumentException();
+            throw new \Exception("Note too low or too high");
         $this->note = $note;
 
         return $this;
